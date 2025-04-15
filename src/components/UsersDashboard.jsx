@@ -23,6 +23,8 @@ import {
 
 const UsersDashboard = () => {
   const [openDialog, setOpenDialog] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editIndex, setEditIndex] = useState(null);
   const [newUser, setNewUser] = useState({
     username: "",
     password: "",
@@ -31,7 +33,7 @@ const UsersDashboard = () => {
     mobileNumber: "",
   });
 
-  const users = [
+  const [users, setUsers] = useState([
     {
       username: "John Anderson",
       role: "Administrator",
@@ -62,9 +64,24 @@ const UsersDashboard = () => {
       status: "Active",
       mobileNumber: "+1 (555) 567-8901",
     },
-  ];
+  ]);
 
-  const handleOpenDialog = () => {
+  const handleOpenDialog = (isEdit = false, index = null) => {
+    setIsEditMode(isEdit);
+    setEditIndex(index);
+
+    if (isEdit && index !== null) {
+      setNewUser(users[index]);
+    } else {
+      setNewUser({
+        username: "",
+        password: "",
+        role: "",
+        status: "",
+        mobileNumber: "",
+      });
+    }
+
     setOpenDialog(true);
   };
 
@@ -77,6 +94,8 @@ const UsersDashboard = () => {
       status: "",
       mobileNumber: "",
     });
+    setIsEditMode(false);
+    setEditIndex(null);
   };
 
   const handleInputChange = (e) => {
@@ -85,7 +104,24 @@ const UsersDashboard = () => {
   };
 
   const handleSaveUser = () => {
-    console.log("New User Data:", newUser);
+    if (isEditMode && editIndex !== null) {
+      // Update existing user
+      setUsers((prevUsers) =>
+        prevUsers.map((user, index) =>
+          index === editIndex
+            ? {
+                ...user,
+                ...newUser,
+                password: newUser.password || user.password, // Keep old password if not changed
+              }
+            : user
+        )
+      );
+    } else {
+      // Add new user
+      setUsers((prevUsers) => [...prevUsers, newUser]);
+    }
+
     handleCloseDialog();
   };
 
@@ -105,6 +141,7 @@ const UsersDashboard = () => {
               <TableCell>Role</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Mobile Number</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -128,6 +165,17 @@ const UsersDashboard = () => {
                   </Button>
                 </TableCell>
                 <TableCell>{user.mobileNumber}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    size="small"
+                    sx={{ marginRight: 1 }}
+                    onClick={() => handleOpenDialog(true, index)}
+                  >
+                    Edit
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -140,14 +188,14 @@ const UsersDashboard = () => {
         color="primary"
         sx={{ marginTop: 3 }}
         startIcon={<span style={{ fontSize: "1.5rem", fontWeight: "bold" }}>+</span>}
-        onClick={handleOpenDialog}
+        onClick={() => handleOpenDialog(false)}
       >
         Create User
       </Button>
 
-      {/* Create User Dialog */}
+      {/* Create/Edit User Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="sm">
-        <DialogTitle>Create New User</DialogTitle>
+        <DialogTitle>{isEditMode ? "Edit User" : "Create New User"}</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
@@ -167,6 +215,7 @@ const UsersDashboard = () => {
             onChange={handleInputChange}
             margin="normal"
             variant="outlined"
+            placeholder={isEditMode ? "Leave blank to keep current password" : ""}
           />
           <FormControl fullWidth margin="normal">
             <InputLabel>Role</InputLabel>
