@@ -25,7 +25,7 @@ const SignInScreen = () => {
 
   const handleSignIn = () => {
     // Add authentication logic here if needed
-    navigate("/dashboard");
+    navigate("/dashboard/prospects"); // Navigate to Prospects Dashboard
   };
 
   return (
