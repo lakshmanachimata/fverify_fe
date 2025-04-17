@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useHandleLogout } from "../utils/utils"; // Import the custom hook
+
 import {
   Box,
   Typography,
@@ -25,6 +27,8 @@ const UsersDashboard = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
+  const handleLogout = useHandleLogout(); // Use the custom hook
+
   const [newUser, setNewUser] = useState({
     username: "",
     password: "",
@@ -128,10 +132,25 @@ const UsersDashboard = () => {
   return (
     <Box sx={{ padding: 4 }}>
       {/* Header */}
+       <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 2,
+              }}
+            >
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         Users Management
       </Typography>
-
+       <Button
+          variant="outlined"
+          color="secondary"
+          onClick={handleLogout}
+        >
+          Logout
+        </Button>
+        </Box>
       {/* Table */}
       <TableContainer component={Paper} sx={{ marginTop: 2 }}>
         <Table>

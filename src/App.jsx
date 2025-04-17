@@ -35,7 +35,7 @@ const App = () => {
         <Route
           path="/dashboard"
           element={
-            userRole || userStatus != 'Active'? (
+            userRole || userStatus !== 'Active'? (
               <DashboardLayout />
             ) : (
               <Navigate to={`/?orgId=${localStorage.getItem('orgId')}`} replace /> // Redirect if no role

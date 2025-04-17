@@ -19,7 +19,7 @@ const DashboardLayout = () => {
         }}
       >
         <Typography variant="h6" fontWeight="bold" gutterBottom>
-          Dashboard
+          Prospect Dashabord
         </Typography>
         <Divider sx={{ mb: 2 }} />
         <List>

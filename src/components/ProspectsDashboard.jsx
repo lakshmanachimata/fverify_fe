@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useHandleLogout } from "../utils/utils"; // Import the custom hook
 
 import {
   Box,
@@ -33,7 +33,7 @@ import { Search, FilterList, Download } from "@mui/icons-material";
 const ProspectsDashboard = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [employmentType, setEmploymentType] = useState("employee");
-  const navigate = useNavigate(); // Initialize useNavigate
+  const handleLogout = useHandleLogout(); // Use the custom hook
 
 
   const rows = [
@@ -98,10 +98,6 @@ const ProspectsDashboard = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.setItem("userData", null); // Clear user data from localStorage
-    navigate("/?orgId=" + localStorage.getItem('orgId')); // Navigate to the sign-in page
-  };
   return (
     <Box sx={{ padding: 4 }}>
    {/* Header */}

@@ -6,20 +6,17 @@ import {
   Typography,
   TextField,
   Button,
-  Checkbox,
-  FormControlLabel,
   InputAdornment,
   IconButton,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { useOrgId } from "./OrgIdValidator"; // Import the custom hook to get orgId
 import { verifyDomain } from "../App";
 
 const SignInScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState(""); // State for username
-  const [password, setPassword] = useState(""); // State for password
+  const [username, setUsername] = useState("lowner"); // State for username
+  const [password, setPassword] = useState("testpwd"); // State for password
   const navigate = useNavigate();
 
   const handleTogglePasswordVisibility = () => {
