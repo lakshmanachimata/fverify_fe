@@ -99,7 +99,8 @@ const ProspectsDashboard = () => {
   };
 
   const handleLogout = () => {
-    navigate("/"); // Navigate to the sign-in page
+    localStorage.setItem("userData", null); // Clear user data from localStorage
+    navigate("/?orgId=" + localStorage.getItem('orgId')); // Navigate to the sign-in page
   };
   return (
     <Box sx={{ padding: 4 }}>

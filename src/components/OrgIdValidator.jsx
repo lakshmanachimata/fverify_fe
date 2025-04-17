@@ -1,14 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, createContext, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from "@mui/material";
 
+// Create a context for orgId
+export const OrgIdContext = createContext(null);
+
+export const useOrgId = () => useContext(OrgIdContext); // Custom hook to access orgId
+
 const OrgIdValidator = ({ children }) => {
   const [openDialog, setOpenDialog] = useState(false);
+  const [orgId, setOrgId] = useState(null); // State to store orgId
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
     const orgIdParam = searchParams.get("orgId");
-    if (!orgIdParam) {
+    if (orgIdParam) {
+      setOrgId(orgIdParam); // Store orgId if provided
+      localStorage.setItem("orgId", orgIdParam); // Store orgId in localStorage
+    } else {
       setOpenDialog(true); // Show dialog if orgId is missing
     }
   }, [searchParams]);
@@ -20,7 +29,7 @@ const OrgIdValidator = ({ children }) => {
   };
 
   return (
-    <>
+    <OrgIdContext.Provider value={orgId}>
       {children}
       <Dialog open={openDialog} onClose={handleDialogClose}>
         <DialogTitle>Error</DialogTitle>
@@ -38,7 +47,7 @@ const OrgIdValidator = ({ children }) => {
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+    </OrgIdContext.Provider>
   );
 };
 

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 import {
   Box,
   Grid,
@@ -7,25 +8,44 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  Select,
-  MenuItem,
   InputAdornment,
   IconButton,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { useOrgId } from "./OrgIdValidator"; // Import the custom hook to get orgId
+import { verifyDomain } from "../App";
 
 const SignInScreen = () => {
-  const [showPassword, setShowPassword] = React.useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [username, setUsername] = useState(""); // State for username
+  const [password, setPassword] = useState(""); // State for password
   const navigate = useNavigate();
 
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSignIn = () => {
-    // Add authentication logic here if needed
-    navigate("/dashboard/prospects"); // Navigate to Prospects Dashboard
+  const handleSignIn = async () => {
+    try {
+      const payload = {
+        org_id: localStorage.getItem('orgId'), // Use orgId from context
+        username,
+        password,
+      };
+
+      const response = await axios.post(verifyDomain + "/api/v1/users/login", payload);
+
+      // Store the response data in localStorage
+      const userData = response.data;
+      localStorage.setItem("userData", JSON.stringify(userData));
+
+      // Navigate to the dashboard
+      navigate("/dashboard/prospects");
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert("Login failed. Please check your credentials and try again.");
+    }
   };
 
   return (
@@ -82,14 +102,16 @@ const SignInScreen = () => {
         </Typography>
 
         <Box component="form" noValidate autoComplete="off" sx={{ mt: 2 }}>
-          {/* Email Input */}
+          {/* Username Input */}
           <TextField
             fullWidth
-            label="Email"
-            type="email"
-            placeholder="Enter your email"
+            label="User Name"
+            type="text"
+            placeholder="Enter your user name"
             margin="normal"
             variant="outlined"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
 
           {/* Password Input */}
@@ -100,6 +122,8 @@ const SignInScreen = () => {
             placeholder="••••••••"
             margin="normal"
             variant="outlined"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -111,23 +135,6 @@ const SignInScreen = () => {
             }}
           />
 
-          {/* Role Selection */}
-          <Select
-            fullWidth
-            displayEmpty
-            defaultValue=""
-            variant="outlined"
-            margin="normal"
-            sx={{ mt: 2 }}
-          >
-            <MenuItem value="" disabled>
-              Select your role
-            </MenuItem>
-            <MenuItem value="admin">Admin</MenuItem>
-            <MenuItem value="user">User</MenuItem>
-          </Select>
-
-          {/* Remember Me and Forgot Password */}
           <Box
             sx={{
               display: "flex",
@@ -136,10 +143,9 @@ const SignInScreen = () => {
               mt: 2,
             }}
           >
-            <FormControlLabel control={<Checkbox />} label="Remember me" />
-            <Button href="/forgot-password" variant="text" color="primary">
+            {/* <Button href="/forgot-password" variant="text" color="primary">
               Forgot Password?
-            </Button>
+            </Button> */}
           </Box>
 
           {/* Sign In Button */}
