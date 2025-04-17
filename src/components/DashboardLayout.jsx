@@ -5,7 +5,8 @@ import { People, SupervisedUserCircle } from "@mui/icons-material";
 
 const DashboardLayout = () => {
   const location = useLocation();
-
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const userRole = userData?.role;
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
       {/* Left Navigation Menu */}
@@ -36,8 +37,8 @@ const DashboardLayout = () => {
             <People sx={{ marginRight: 1 }} />
             <ListItemText primary="Prospects" />
           </ListItem>
-
           {/* Users Link */}
+          {(["Admin", "Owner", "Operations Lead", "Operations Executive"].includes(userRole)) && (
           <ListItem
             button
             component={Link}
@@ -50,6 +51,7 @@ const DashboardLayout = () => {
             <SupervisedUserCircle sx={{ marginRight: 1 }} />
             <ListItemText primary="Users" />
           </ListItem>
+          )}
         </List>
       </Box>
 

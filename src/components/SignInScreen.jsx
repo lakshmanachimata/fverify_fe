@@ -34,14 +34,26 @@ const SignInScreen = () => {
         password,
       };
 
-      const response = await axios.post(verifyDomain + "/api/v1/users/login", payload);
+      try {
+        const response = await axios.post(verifyDomain + "/api/v1/users/login", payload);
+        // Store the response data in localStorage
+        const userData = response.data;
+        localStorage.setItem("userData", JSON.stringify(userData));
 
-      // Store the response data in localStorage
-      const userData = response.data;
-      localStorage.setItem("userData", JSON.stringify(userData));
+        // Navigate to the dashboard
+        navigate("/dashboard/prospects");
+      }
+      catch (error) {
+        console.error("Login failed:", error);
+        let alertMsg = "Login failed. Please check your credentials and try again.";
+        if (error.response && error.response.status === 401) {
+          alertMsg = error.response?.data?.error ? error.response?.data?.error : "Invalid username or password.";
+        } else if (error.response && error.response.status === 403) {
+          alertMsg = "Your account is inactive. Please contact support.";
+        }
+        alert(alertMsg);
+      }
 
-      // Navigate to the dashboard
-      navigate("/dashboard/prospects");
     } catch (error) {
       console.error("Login failed:", error);
       alert("Login failed. Please check your credentials and try again.");
