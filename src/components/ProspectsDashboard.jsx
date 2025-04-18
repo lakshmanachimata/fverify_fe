@@ -34,6 +34,7 @@ const ProspectsDashboard = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [employmentType, setEmploymentType] = useState("employee");
   const handleLogout = useHandleLogout(); // Use the custom hook
+  const userData = JSON.parse(localStorage.getItem("userData") ? localStorage.getItem("userData"): "{}"); // Parse user data from localStorage
 
 
   const rows = [
@@ -117,13 +118,26 @@ const ProspectsDashboard = () => {
             Manage your prospects and loan applications
           </Typography>
         </Box>
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={handleLogout}
-        >
-          Logout
-        </Button>
+        <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 2,
+        }}>
+        {/* Display Username */}
+        <Typography variant="body1" sx={{ marginRight: 2 }}>
+          {userData.username}
+        </Typography>
+  
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handleLogout}
+          >
+            Logout
+          </Button>
+        </Box>
       </Box>
       {/* Summary Cards */}
       <Grid container spacing={2} sx={{ marginBottom: 4 }}>

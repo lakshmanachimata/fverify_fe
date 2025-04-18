@@ -141,12 +141,11 @@ const UsersDashboard = () => {
       catch (error) {
         let alertMsg = "Invalid user update request.";
         if (error.response && error.response.status === 400) {
-          alertMsg = error.response?.data?.error ? error.response?.data?.error : "Invalid username or password.";
-        }
-        if (error.response && error.response.status === 401) {
-          alertMsg = error.response?.data?.error ? error.response?.data?.error : "Invalid username or password.";
+          alertMsg = error.response?.data?.error ? error.response?.data?.error : "Session expired. Please login again.";
+        }else if (error.response && error.response.status === 401) {
+          alertMsg = error.response?.data?.error ? error.response?.data?.error : "Session expired. Please login again.";
         } else if (error.response && error.response.status === 403) {
-          alertMsg = "Your account is inactive. Please contact support.";
+          alertMsg = error.response?.data?.error ? error.response?.data?.error : "Your account is inactive. Please contact support.";
         }
         alert(alertMsg);
       }
@@ -158,10 +157,12 @@ const UsersDashboard = () => {
     }
     catch (error) {
       let alertMsg = "Invalid user create request.";
-      if (error.response && error.response.status === 401) {
-        alertMsg = error.response?.data?.error ? error.response?.data?.error : "Invalid username or password.";
+      if (error.response && error.response.status === 400) {
+        alertMsg = error.response?.data?.error ? error.response?.data?.error : "Session expired. Please login again.";
+      }else if (error.response && error.response.status === 401) {
+        alertMsg = error.response?.data?.error ? error.response?.data?.error : "Session expired. Please login again.";
       } else if (error.response && error.response.status === 403) {
-        alertMsg = "Your account is inactive. Please contact support.";
+        alertMsg = error.response?.data?.error ? error.response?.data?.error : "Your account is inactive. Please contact support.";
       }
       alert(alertMsg);
     }
@@ -183,6 +184,19 @@ const UsersDashboard = () => {
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         Users Management
       </Typography>
+
+      <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 2,
+      }}>
+     {/* Display Username */}
+     <Typography variant="body1" sx={{ marginRight: 2 }}>
+        {userData.username}
+      </Typography>
+
        <Button
           variant="outlined"
           color="secondary"
@@ -190,6 +204,7 @@ const UsersDashboard = () => {
         >
           Logout
         </Button>
+      </Box>
         </Box>
       {/* Table */}
       <TableContainer component={Paper} sx={{ marginTop: 2 }}>
