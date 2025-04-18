@@ -13,7 +13,7 @@ const App = () => {
 
   useEffect(() => {
     // Retrieve user data from localStorage after login
-    const userData = JSON.parse(localStorage.getItem("userData"));
+    const userData = JSON.parse(localStorage.getItem("userData") ? localStorage.getItem("userData"): "{}"); // Parse user data from localStorage
     if (userData?.role) {
       setUserRole(userData.role); // Set the user role in state
       setUserStatus(userData.status); // Set the user role in state

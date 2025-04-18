@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useHandleLogout } from "../utils/utils"; // Import the custom hook
+import React, { useState, useEffect } from "react";
+import { getRoles, getStatuses, getUsers, useHandleLogout } from "../utils/utils"; // Import the custom hook
 
 import {
   Box,
@@ -28,6 +28,11 @@ const UsersDashboard = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
   const handleLogout = useHandleLogout(); // Use the custom hook
+  const userData = JSON.parse(localStorage.getItem("userData") ? localStorage.getItem("userData"): "{}"); // Parse user data from localStorage
+  const orgId = localStorage.getItem("orgId");
+  const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]);
+  const [statuses , setStatuses]  =  useState([]);
 
   const [newUser, setNewUser] = useState({
     username: "",
@@ -37,38 +42,48 @@ const UsersDashboard = () => {
     mobileNumber: "",
   });
 
-  const [users, setUsers] = useState([
-    {
-      username: "John Anderson",
-      role: "Administrator",
-      status: "Active",
-      mobileNumber: "+1 (555) 123-4567",
-    },
-    {
-      username: "Sarah Wilson",
-      role: "Manager",
-      status: "Active",
-      mobileNumber: "+1 (555) 234-5678",
-    },
-    {
-      username: "Michael Brown",
-      role: "User",
-      status: "Inactive",
-      mobileNumber: "+1 (555) 345-6789",
-    },
-    {
-      username: "Emily Davis",
-      role: "Manager",
-      status: "Active",
-      mobileNumber: "+1 (555) 456-7890",
-    },
-    {
-      username: "David Miller",
-      role: "User",
-      status: "Active",
-      mobileNumber: "+1 (555) 567-8901",
-    },
-  ]);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const data = await getUsers(userData.token, orgId); // Call the API
+        setUsers(data); // Update the state with the fetched users
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      }
+    };
+
+    fetchUsers(); // Fetch users on component mount
+  }, [userData.token, orgId]);
+
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const data = await getRoles(orgId); // Call the API
+        setRoles(data); // Update the state with the fetched roles
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      }
+    };
+
+    fetchRoles(); // Fetch users on component mount
+  }, [orgId]);
+
+  useEffect(() => {
+    const fetStatuses = async () => {
+      try {
+        const data = await getStatuses(orgId); // Call the API
+        setStatuses(data); // Update the state with the fetched statuses
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      }
+    };
+
+    fetStatuses(); // Fetch users on component mount
+  }, [orgId]);
+
+
+
 
   const handleOpenDialog = (isEdit = false, index = null) => {
     setIsEditMode(isEdit);
@@ -165,7 +180,7 @@ const UsersDashboard = () => {
           </TableHead>
           <TableBody>
             {users.map((user, index) => (
-              <TableRow key={index}>
+              <TableRow key={user.uid}>
                 <TableCell>{user.username}</TableCell>
                 <TableCell>{user.role}</TableCell>
                 <TableCell>
@@ -178,12 +193,12 @@ const UsersDashboard = () => {
                       color: "white",
                       textTransform: "none",
                       pointerEvents: "none",
-                    }}
-                  >
+                    }}>
                     {user.status}
                   </Button>
                 </TableCell>
                 <TableCell>{user.mobileNumber}</TableCell>
+                <TableCell>{user.mobile_number}</TableCell>
                 <TableCell>
                   <Button
                     variant="outlined"
@@ -244,9 +259,11 @@ const UsersDashboard = () => {
               onChange={handleInputChange}
               variant="outlined"
             >
-              <MenuItem value="Administrator">Administrator</MenuItem>
-              <MenuItem value="Manager">Manager</MenuItem>
-              <MenuItem value="User">User</MenuItem>
+            {roles.map((role, index) => (
+                  <MenuItem key={index} value={role}>
+                    {role}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
           <FormControl fullWidth margin="normal">
@@ -257,8 +274,11 @@ const UsersDashboard = () => {
               onChange={handleInputChange}
               variant="outlined"
             >
-              <MenuItem value="Active">Active</MenuItem>
-              <MenuItem value="Inactive">Inactive</MenuItem>
+             {statuses.map((role, index) => (
+                  <MenuItem key={index} value={role}>
+                    {role}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
           <TextField

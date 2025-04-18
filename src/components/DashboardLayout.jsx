@@ -5,7 +5,7 @@ import { People, SupervisedUserCircle } from "@mui/icons-material";
 
 const DashboardLayout = () => {
   const location = useLocation();
-  const userData = JSON.parse(localStorage.getItem("userData"));
+  const userData = JSON.parse(localStorage.getItem("userData") ? localStorage.getItem("userData"): "{}"); // Parse user data from localStorage
   const userRole = userData?.role;
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>

@@ -12,6 +12,7 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { verifyDomain } from "../App";
+import { signInUser } from "../utils/utils";
 
 const SignInScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -25,37 +26,23 @@ const SignInScreen = () => {
 
   const handleSignIn = async () => {
     try {
-      const payload = {
-        org_id: localStorage.getItem('orgId'), // Use orgId from context
-        username,
-        password,
-      };
-
-      try {
-        const response = await axios.post(verifyDomain + "/api/v1/users/login", payload);
-        // Store the response data in localStorage
-        const userData = response.data;
-        localStorage.setItem("userData", JSON.stringify(userData));
-
-        // Navigate to the dashboard
-        navigate("/dashboard/prospects");
-      }
-      catch (error) {
-        console.error("Login failed:", error);
-        let alertMsg = "Login failed. Please check your credentials and try again.";
-        if (error.response && error.response.status === 401) {
-          alertMsg = error.response?.data?.error ? error.response?.data?.error : "Invalid username or password.";
-        } else if (error.response && error.response.status === 403) {
-          alertMsg = "Your account is inactive. Please contact support.";
-        }
-        alert(alertMsg);
-      }
-
-    } catch (error) {
-      console.error("Login failed:", error);
-      alert("Login failed. Please check your credentials and try again.");
+     const data = await signInUser(username,password, localStorage.getItem('orgId')); // Call the API
+      // Store the response data in localStorage
+      localStorage.setItem("userData", JSON.stringify(data));
+      // Navigate to the dashboard
+      navigate("/dashboard/prospects");
     }
-  };
+    catch (error) {
+      console.error("Login failed:", error);
+      let alertMsg = "Login failed. Please check your credentials and try again.";
+      if (error.response && error.response.status === 401) {
+        alertMsg = error.response?.data?.error ? error.response?.data?.error : "Invalid username or password.";
+      } else if (error.response && error.response.status === 403) {
+        alertMsg = "Your account is inactive. Please contact support.";
+      }
+      alert(alertMsg);
+    }
+};
 
   return (
     <Grid container style={{ height: "100vh" }}>
