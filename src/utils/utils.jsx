@@ -82,3 +82,63 @@ export const signInUser = async (username, password, org_id) => {
     throw error; // Re-throw the error for handling in the calling function
   }
 };
+
+
+export const updateUser = async (newUser, token,org_id) => {
+  try {
+    const response = await axios.put(`${verifyDomain}/api/v1/users/uid/${newUser.uid}`, 
+      {
+        userid : newUser.userid,
+        username : newUser.username,
+        password: newUser.password,
+        role:  newUser.role,
+        status:newUser.status,
+        mobile_number:newUser.mobile_number,
+        org_id: org_id,
+        remarks:newUser.remarks,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Authorization header with user token
+          org_id: org_id, // Organization ID header
+        },
+      }
+  );
+    // Return the response data
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching signin:", error);
+    throw error; // Re-throw the error for handling in the calling function
+  }
+};
+
+
+
+export const createUser = async (newUser, token, org_id) => {
+  try {
+    const response = await axios.post(`${verifyDomain}/api/v1/users`,
+      {
+        userid: newUser.userid,
+        username: newUser.username,
+        password: newUser.password,
+        role: newUser.role,
+        status: newUser.status,
+        mobile_number: newUser.mobile_number,
+        org_id: org_id,
+        remarks: newUser.remarks,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Authorization header with user token
+          org_id: org_id, // Organization ID header
+        },
+      }
+    );
+
+    // Return the response data
+    return response.data;
+  } catch (error) {
+    console.error("Error creating user:", error);
+    throw error; // Re-throw the error for handling in the calling function
+  }
+};

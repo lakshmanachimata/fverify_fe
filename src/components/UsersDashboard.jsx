@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getRoles, getStatuses, getUsers, useHandleLogout } from "../utils/utils"; // Import the custom hook
+import { createUser, getRoles, getStatuses, getUsers, updateUser, useHandleLogout } from "../utils/utils"; // Import the custom hook
 
 import {
   Box,
@@ -35,11 +35,14 @@ const UsersDashboard = () => {
   const [statuses , setStatuses]  =  useState([]);
 
   const [newUser, setNewUser] = useState({
+    userid: "",
     username: "",
     password: "",
     role: "",
     status: "",
     mobile_number: "",
+    remarks: "",
+    uid: "",
   });
 
   useEffect(() => {
@@ -98,6 +101,9 @@ const UsersDashboard = () => {
         role: "",
         status: "",
         mobile_number: "",
+        uid: "",
+        remarks: "",
+        userid: "",
       });
     }
 
@@ -112,6 +118,9 @@ const UsersDashboard = () => {
       role: "",
       status: "",
       mobile_number: "",
+      uid: "",
+      remarks: "",
+      userid: "",
     });
     setIsEditMode(false);
     setEditIndex(null);
@@ -122,27 +131,43 @@ const UsersDashboard = () => {
     setNewUser((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSaveUser = () => {
-    if (isEditMode && editIndex !== null) {
-      // Update existing user
-      setUsers((prevUsers) =>
-        prevUsers.map((user, index) =>
-          index === editIndex
-            ? {
-                ...user,
-                ...newUser,
-                password: newUser.password || user.password, // Keep old password if not changed
-              }
-            : user
-        )
-      );
+  const handleSaveUser = async () =>  {
+    if (isEditMode && editIndex !== null) {  
+      try {
+        const cdata = await updateUser(newUser, userData.token ,localStorage.getItem('orgId')); // Call the API
+        const data = await getUsers(userData.token, orgId); // Call the API
+        setUsers(data); // Update the state with the fetched users
+      }
+      catch (error) {
+        let alertMsg = "Invalid user update request.";
+        if (error.response && error.response.status === 400) {
+          alertMsg = error.response?.data?.error ? error.response?.data?.error : "Invalid username or password.";
+        }
+        if (error.response && error.response.status === 401) {
+          alertMsg = error.response?.data?.error ? error.response?.data?.error : "Invalid username or password.";
+        } else if (error.response && error.response.status === 403) {
+          alertMsg = "Your account is inactive. Please contact support.";
+        }
+        alert(alertMsg);
+      }
     } else {
-      // Add new user
-      setUsers((prevUsers) => [...prevUsers, newUser]);
+    try {
+      const cdata = await createUser(newUser, userData.token ,localStorage.getItem('orgId'),); // Call the API
+      const data = await getUsers(userData.token, orgId); // Call the API
+      setUsers(data); // Update the state with the fetched users
     }
-
-    handleCloseDialog();
+    catch (error) {
+      let alertMsg = "Invalid user create request.";
+      if (error.response && error.response.status === 401) {
+        alertMsg = error.response?.data?.error ? error.response?.data?.error : "Invalid username or password.";
+      } else if (error.response && error.response.status === 403) {
+        alertMsg = "Your account is inactive. Please contact support.";
+      }
+      alert(alertMsg);
+    }
   };
+  handleCloseDialog();
+}
 
   return (
     <Box sx={{ padding: 4 }}>
@@ -230,10 +255,22 @@ const UsersDashboard = () => {
       <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="sm">
         <DialogTitle>{isEditMode ? "Edit User" : "Create New User"}</DialogTitle>
         <DialogContent>
+        <TextField
+            fullWidth
+            label="userid"
+            name="userid"
+            type="text"
+            disabled={isEditMode? true : false}
+            value={newUser.userid}
+            onChange={handleInputChange}
+            margin="normal"
+            variant="outlined"
+          />
           <TextField
             fullWidth
             label="Username"
             name="username"
+            disabled={isEditMode? true : false}
             value={newUser.username}
             onChange={handleInputChange}
             margin="normal"
@@ -248,7 +285,7 @@ const UsersDashboard = () => {
             onChange={handleInputChange}
             margin="normal"
             variant="outlined"
-            placeholder={isEditMode ? "Leave blank to keep current password" : ""}
+            placeholder="Leave blank to keep the same password"
           />
           <FormControl fullWidth margin="normal">
             <InputLabel>Role</InputLabel>
@@ -285,6 +322,15 @@ const UsersDashboard = () => {
             label="Mobile Number"
             name="mobile_number"
             value={newUser.mobile_number}
+            onChange={handleInputChange}
+            margin="normal"
+            variant="outlined"
+          />
+          <TextField
+            fullWidth
+            label="Remarks"
+            name="remarks"
+            value={newUser.remarks}
             onChange={handleInputChange}
             margin="normal"
             variant="outlined"
