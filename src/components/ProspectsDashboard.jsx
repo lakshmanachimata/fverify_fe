@@ -209,7 +209,7 @@ const ProspectsDashboard = () => {
                 <TableCell>{row.appNumber}</TableCell>
                 <TableCell>{row.prospectId}</TableCell>
                 <TableCell>{row.applicantName}</TableCell>
-                <TableCell>{row.mobileNumber}</TableCell>
+                <TableCell>{row.mobile_number}</TableCell>
                 <TableCell>{row.homeAddress}</TableCell>
                 <TableCell>{row.officeAddress}</TableCell>
                 <TableCell>{row.loanDetails}</TableCell>

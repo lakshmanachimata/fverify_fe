@@ -1,11 +1,11 @@
 export class UserData {
-    constructor(uid, userId, username, role, status, mobileNumber, token) {
+    constructor(uid, userId, username, role, status, mobile_number, token) {
       this.uid = uid; // Unique identifier for the user
       this.userId = userId; // User ID
       this.username = username; // Username
       this.role = role; // Role of the user
       this.status = status; // Status of the user (e.g., Active/Inactive)
-      this.mobileNumber = mobileNumber; // Mobile number of the user
+      this.mobile_number = mobile_number; // Mobile number of the user
       this.token = token; // JWT token for authentication
     }
   
@@ -17,7 +17,7 @@ export class UserData {
         json.username,
         json.role,
         json.status,
-        json.mobileNumber,
+        json.mobile_number,
         json.token
       );
     }
@@ -30,7 +30,7 @@ export class UserData {
         username: this.username,
         role: this.role,
         status: this.status,
-        mobileNumber: this.mobileNumber,
+        mobile_number: this.mobile_number,
         token: this.token,
       };
     }

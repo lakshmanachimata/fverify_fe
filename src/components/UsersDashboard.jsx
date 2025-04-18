@@ -39,7 +39,7 @@ const UsersDashboard = () => {
     password: "",
     role: "",
     status: "",
-    mobileNumber: "",
+    mobile_number: "",
   });
 
   useEffect(() => {
@@ -97,7 +97,7 @@ const UsersDashboard = () => {
         password: "",
         role: "",
         status: "",
-        mobileNumber: "",
+        mobile_number: "",
       });
     }
 
@@ -111,7 +111,7 @@ const UsersDashboard = () => {
       password: "",
       role: "",
       status: "",
-      mobileNumber: "",
+      mobile_number: "",
     });
     setIsEditMode(false);
     setEditIndex(null);
@@ -197,7 +197,6 @@ const UsersDashboard = () => {
                     {user.status}
                   </Button>
                 </TableCell>
-                <TableCell>{user.mobileNumber}</TableCell>
                 <TableCell>{user.mobile_number}</TableCell>
                 <TableCell>
                   <Button
@@ -284,8 +283,8 @@ const UsersDashboard = () => {
           <TextField
             fullWidth
             label="Mobile Number"
-            name="mobileNumber"
-            value={newUser.mobileNumber}
+            name="mobile_number"
+            value={newUser.mobile_number}
             onChange={handleInputChange}
             margin="normal"
             variant="outlined"
