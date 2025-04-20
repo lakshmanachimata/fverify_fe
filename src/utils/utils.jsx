@@ -21,9 +21,10 @@ export const useHandleLogout = () => {
 export const useErrorDialog = () => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [title, setTitle] = useState("");
 
-  const showErrorDialog = (msg) => {
-    console.log("Error Dialog Triggered:", msg); // Debugging log
+  const showErrorDialog = (msg, title) => {
+    setTitle(title);
     setMessage(msg);
     setOpen(true);
   };
@@ -35,7 +36,7 @@ export const useErrorDialog = () => {
 
   const ErrorDialog = () => (
     <Dialog open={open} onClose={closeErrorDialog} fullWidth maxWidth="sm">
-      <DialogTitle>Error</DialogTitle>
+      <DialogTitle>{title ? title : "Error"}</DialogTitle>
       <DialogContent>
         <Typography>{message}</Typography>
       </DialogContent>

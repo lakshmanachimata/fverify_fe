@@ -39,7 +39,7 @@ const SignInScreen = () => {
       } else if (error.response && error.response.status === 403) {
         alertMsg = "Your account is inactive. Please contact support.";
       }
-      showErrorDialog(alertMsg);
+      showErrorDialog(alertMsg,"Error");
     }
 };
 

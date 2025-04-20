@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getProspects, useHandleLogout,getProspectCount,createProspect,updateProspect } from "../utils/utils"; // Import the API function and logout hook
+import { getProspects, useHandleLogout,getProspectCount,createProspect,updateProspect ,useErrorDialog} from "../utils/utils"; // Import the API function and logout hook
 
 import {
   Box,
@@ -42,32 +42,35 @@ const ProspectsDashboard = () => {
   const orgId = localStorage.getItem("orgId");
   const [isEditMode, setIsEditMode] = useState(false); // Track if the dialog is in edit mode
   const [selectedProspect, setSelectedProspect] = useState(null); 
+  const { showErrorDialog, ErrorDialog } = useErrorDialog(); // Use the error dialog hook
 
   const handleSaveProspect = async (prospectData) => {
+    setOpenDialog(false); // Close the dialog
     try {
       if (isEditMode) {
         // Call API to update the prospect
         await updateProspect(userData.token, orgId, prospectData); // Assume `updateProspect` is implemented
-        const count = await getProspectCount(userData.token, orgId); // Call the API
-        setTotalProspects(count || 0); // Update total prospects
-        const data = await getProspects(userData.token, orgId, 0, 10); // Call the API
-        setProspects(data || []); // Update prospects state
-        alert("Prospect updated successfully!");
+        await fetchProspectData(); // Fetch updated prospect data
+        showErrorDialog("Prospect updated successfully!", "Success");
       } else {
         // Call API to create a new prospect
         await createProspect(userData.token, orgId, prospectData);
-        const count = await getProspectCount(userData.token, orgId); // Call the API
-        setTotalProspects(count || 0); // Update total prospects
-        const data = await getProspects(userData.token, orgId, 0, 10); // Call the API
-        setProspects(data || []); // Update prospects state
-        alert("Prospect created successfully!");
+        await fetchProspectData(); // Fetch updated prospect data
+        showErrorDialog("Prospect created successfully!", "Success");
       }
-      setOpenDialog(false); // Close the dialog
       setPage(1); // Reset to the first page
     } catch (error) {
-      alert("Error saving prospect: " + error.message); // Handle error
+      showErrorDialog("Error saving prospect: " + "Error"); // Handle error
     }
   };
+
+
+  const fetchProspectData = async () => {
+    const count = await getProspectCount(userData.token, orgId); // Fetch updated count
+    setTotalProspects(count || 0); // Update total prospects
+    const data = await getProspects(userData.token, orgId, 0, limit); // Fetch updated prospects
+    setProspects(data || []); // Update prospects state
+  }
 
   useEffect(() => {
     const fetchProspectCount = async () => {
@@ -117,6 +120,8 @@ const ProspectsDashboard = () => {
 
   return (
     <Box sx={{ padding: 4 }}>
+            <ErrorDialog />
+
    {/* Header */}
    <Box
         sx={{
@@ -156,23 +161,55 @@ const ProspectsDashboard = () => {
         </Box>
       </Box>
       {/* Summary Cards */}
-      <Grid container spacing={2} sx={{ marginBottom: 4 }}>
-        <Grid item xs={12} sm={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="textSecondary">
-                Total Prospects
-              </Typography>
-              <Typography variant="h4" fontWeight="bold">
-                {totalProspects}
-              </Typography>
-            </CardContent>
-          </Card>
+      {/* Summary Cards with Refresh Button */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 4,
+          borderBottom: "1px solid #ccc", // Add a border
+          paddingBottom: 2, // Optional: Add padding below the box
+          marginTop: 2, // Optional: Add margin above the box
+          padding: 2, // Optional: Add padding inside the box
+        }}
+      >
+        {/* Total Prospects Card */}
+        <Grid container spacing={2} sx={{ flex: 1 }}>
+          <Grid item xs={12} sm={4}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" color="textSecondary">
+                  Total Prospects
+                </Typography>
+                <Typography variant="h4" fontWeight="bold">
+                  {totalProspects}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
+
+        {/* Refresh Button */}
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={async () => {
+            try {
+              await fetchProspectData(); // Fetch updated prospect data
+              showErrorDialog("Data refreshed successfully!", "Success");
+            } catch (error) {
+              showErrorDialog("Error refreshing data: " + "Error"); // Handle error
+            }
+          }}
+          sx={{ height: "fit-content" }}
+        >
+          Refresh
+        </Button>
+      </Box>
 
       {/* Search and Filter */}
-      <Box
+      {/*<Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
@@ -193,7 +230,7 @@ const ProspectsDashboard = () => {
         <IconButton>
           <Download />
         </IconButton>
-      </Box>
+      </Box>*/}
 
       {/* Table */}
       <TableContainer component={Paper}>
