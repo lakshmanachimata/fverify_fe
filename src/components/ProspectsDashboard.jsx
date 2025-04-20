@@ -375,7 +375,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      applicant_name: e.target.value,
+                      office_address: e.target.value,
                     }))
                   }
                   fullWidth />
@@ -383,7 +383,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      applicant_name: e.target.value,
+                      years_in_current_office: e.target.value,
                     }))
                   }
                   fullWidth />
@@ -391,7 +391,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      applicant_name: e.target.value,
+                      role: e.target.value,
                     }))
                   }
                   fullWidth />
@@ -399,7 +399,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      applicant_name: e.target.value,
+                      emp_id: e.target.value,
                     }))
                   }
                   fullWidth />
@@ -407,7 +407,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      applicant_name: e.target.value,
+                      previous_experience: e.target.value,
                     }))
                   } fullWidth />
           <Box sx={{ display: "flex", gap: 2 }}>
@@ -415,7 +415,7 @@ const ProspectsDashboard = () => {
                     onChange={(e) =>
                       setSelectedProspect((prev) => ({
                         ...prev,
-                        applicant_name: e.target.value,
+                        gross_salary: e.target.value,
                       }))
                     }
                     inputMode="numeric"
@@ -424,7 +424,7 @@ const ProspectsDashboard = () => {
                     onChange={(e) =>
                       setSelectedProspect((prev) => ({
                         ...prev,
-                        applicant_name: e.target.value,
+                        net_salary: e.target.value,
                       }))
                     }
                     inputMode="numeric"
@@ -438,7 +438,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      applicant_name: e.target.value,
+                      office_address: e.target.value,
                     }))
                   }
                   fullWidth />
@@ -446,7 +446,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      applicant_name: e.target.value,
+                      years_in_current_office: e.target.value,
                     }))
                   }
                    fullWidth />
@@ -454,7 +454,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      applicant_name: e.target.value,
+                      role: e.target.value,
                     }))
                   }
                   fullWidth />
@@ -462,7 +462,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      applicant_name: e.target.value,
+                      gross_salary: e.target.value,
                     }))
                   }
                   fullWidth />
