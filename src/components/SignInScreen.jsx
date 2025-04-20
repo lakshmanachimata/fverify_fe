@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import {
   Box,
   Grid,
@@ -11,14 +10,14 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { verifyDomain } from "../App";
-import { signInUser } from "../utils/utils";
+import { signInUser, useErrorDialog } from "../utils/utils";
 
 const SignInScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("lowner"); // State for username
   const [password, setPassword] = useState("testpwd"); // State for password
   const navigate = useNavigate();
+  const { showErrorDialog, ErrorDialog } = useErrorDialog(); // Use the error dialog hook
 
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -40,13 +39,15 @@ const SignInScreen = () => {
       } else if (error.response && error.response.status === 403) {
         alertMsg = "Your account is inactive. Please contact support.";
       }
-      alert(alertMsg);
+      showErrorDialog(alertMsg);
     }
 };
 
   return (
     <Grid container style={{ height: "100vh" }}>
       {/* Left Section */}
+      <ErrorDialog />
+
       <Grid
         item
         xs={12}

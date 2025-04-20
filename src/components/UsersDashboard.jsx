@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { createUser, getRoles, getStatuses, getUsers, updateUser, useHandleLogout } from "../utils/utils"; // Import the custom hook
+import { createUser, getRoles, getStatuses, getUsers, updateUser, useErrorDialog, useHandleLogout } from "../utils/utils"; // Import the custom hook
 
 import {
   Box,
@@ -33,6 +33,7 @@ const UsersDashboard = () => {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [statuses , setStatuses]  =  useState([]);
+  const { showErrorDialog, ErrorDialog } = useErrorDialog(); // Use the error dialog hook
 
   const [newUser, setNewUser] = useState({
     userid: "",
@@ -147,7 +148,7 @@ const UsersDashboard = () => {
         } else if (error.response && error.response.status === 403) {
           alertMsg = error.response?.data?.error ? error.response?.data?.error : "Your account is inactive. Please contact support.";
         }
-        alert(alertMsg);
+        showErrorDialog(alertMsg); // Show error dialog
       }
     } else {
     try {
@@ -164,7 +165,7 @@ const UsersDashboard = () => {
       } else if (error.response && error.response.status === 403) {
         alertMsg = error.response?.data?.error ? error.response?.data?.error : "Your account is inactive. Please contact support.";
       }
-      alert(alertMsg);
+      showErrorDialog(alertMsg); // Show error dialog
     }
   };
   handleCloseDialog();
@@ -172,6 +173,7 @@ const UsersDashboard = () => {
 
   return (
     <Box sx={{ padding: 4 }}>
+      <ErrorDialog />
       {/* Header */}
        <Box
               sx={{

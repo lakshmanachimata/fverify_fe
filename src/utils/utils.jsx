@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { verifyDomain } from "../App";
+import React, { useState } from "react";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from "@mui/material";
 
 export const useHandleLogout = () => {
   const navigate = useNavigate();
@@ -16,6 +18,37 @@ export const useHandleLogout = () => {
   return handleLogout;
 };
 
+export const useErrorDialog = () => {
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const showErrorDialog = (msg) => {
+    console.log("Error Dialog Triggered:", msg); // Debugging log
+    setMessage(msg);
+    setOpen(true);
+  };
+
+  const closeErrorDialog = () => {
+    setOpen(false);
+    setMessage("");
+  };
+
+  const ErrorDialog = () => (
+    <Dialog open={open} onClose={closeErrorDialog} fullWidth maxWidth="sm">
+      <DialogTitle>Error</DialogTitle>
+      <DialogContent>
+        <Typography>{message}</Typography>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={closeErrorDialog} color="primary" variant="contained">
+          OK
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+
+  return { showErrorDialog, ErrorDialog };
+};
 
 
 export const getUsers = async (token, orgId) => {
