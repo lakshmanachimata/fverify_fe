@@ -212,3 +212,46 @@ export const getProspectCount = async (token, orgId) => {
     throw error; // Re-throw the error for handling in the calling function
   }
 };
+
+export const createProspect = async (token, orgId, prospectData) => {
+  try {
+    const response = await axios.post(
+      `${verifyDomain}/api/v1/prospects`,
+      prospectData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Authorization header with user token
+          org_id: orgId, // Organization ID header
+        },
+      }
+    );
+
+    // Return the response data
+    return response.data;
+  } catch (error) {
+    console.error("Error creating prospect:", error);
+    throw error; // Re-throw the error for handling in the calling function
+  }
+};
+
+
+export const updateProspect = async (token, orgId, prospectData) => {
+  try {
+    const response = await axios.put(
+      `${verifyDomain}/api/v1/prospects/${prospectData.uid}`,
+      prospectData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Authorization header with user token
+          org_id: orgId, // Organization ID header
+        },
+      }
+    );
+
+    // Return the response data
+    return response.data;
+  } catch (error) {
+    console.error("Error updating prospect:", error);
+    throw error; // Re-throw the error for handling in the calling function
+  }
+};

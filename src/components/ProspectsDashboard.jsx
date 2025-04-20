@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getProspects, useHandleLogout,getProspectCount } from "../utils/utils"; // Import the API function and logout hook
+import { getProspects, useHandleLogout,getProspectCount,createProspect,updateProspect } from "../utils/utils"; // Import the API function and logout hook
 
 import {
   Box,
@@ -40,7 +40,26 @@ const ProspectsDashboard = () => {
   const handleLogout = useHandleLogout(); // Use the custom hook
   const userData = JSON.parse(localStorage.getItem("userData") || "{}"); // Parse user data from localStorage
   const orgId = localStorage.getItem("orgId");
+  const [isEditMode, setIsEditMode] = useState(false); // Track if the dialog is in edit mode
+  const [selectedProspect, setSelectedProspect] = useState(null); 
 
+  const handleSaveProspect = async (prospectData) => {
+    try {
+      if (isEditMode) {
+        // Call API to update the prospect
+        await updateProspect(userData.token, orgId, prospectData); // Assume `updateProspect` is implemented
+        alert("Prospect updated successfully!");
+      } else {
+        // Call API to create a new prospect
+        await createProspect(userData.token, orgId, prospectData);
+        alert("Prospect created successfully!");
+      }
+      setOpenDialog(false); // Close the dialog
+      setPage(1); // Reset to the first page
+    } catch (error) {
+      alert("Error saving prospect: " + error.message); // Handle error
+    }
+  };
 
   useEffect(() => {
     const fetchProspectCount = async () => {
@@ -60,7 +79,7 @@ const ProspectsDashboard = () => {
       try {
         const skip = (page - 1) * limit; // Calculate skip value based on page
         const data = await getProspects(userData.token, orgId, skip, limit); // Call the API
-        setProspects(data?.prospects || []); // Update prospects state
+        setProspects(data || []); // Update prospects state
       } catch (error) {
         alert("Error fetching prospects: " + error.message); // Handle error
       }
@@ -73,10 +92,16 @@ const ProspectsDashboard = () => {
     setPage(value);
   };
 
-  const handleOpenDialog = () => {
-    setOpenDialog(true);
+  const handleOpenDialog = (prospectData = null) => {
+    if (prospectData) {
+      setIsEditMode(true); // Set edit mode
+      setSelectedProspect(prospectData); // Set the selected prospect's data
+    } else {
+      setIsEditMode(false); // Set create mode
+      setSelectedProspect(null); // Clear selected prospect data
+    }
+    setOpenDialog(true); // Open the dialog
   };
-
   const handleCloseDialog = () => {
     setOpenDialog(false);
   };
@@ -84,6 +109,10 @@ const ProspectsDashboard = () => {
   const handleEmploymentTypeChange = (event, newType) => {
     if (newType !== null) {
       setEmploymentType(newType);
+      setSelectedProspect((prev) => ({
+        ...prev,
+        employment_type: newType,
+      }));
     }
   };
 
@@ -172,28 +201,39 @@ const ProspectsDashboard = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>App Number</TableCell>
-              <TableCell>Prospect ID</TableCell>
-              <TableCell>Applicant Name</TableCell>
-              <TableCell>Mobile Number</TableCell>
-              <TableCell>Home Address</TableCell>
-              <TableCell>Office Address</TableCell>
-              <TableCell>Loan Details</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Prospect ID</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Applicant Name</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Age</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Mobile Number</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Home Address</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Office Address</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Employment Type</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Edit</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {prospects.map((prospect, index) => (
-              <TableRow key={index}>
-                <TableCell>{prospect.appNumber}</TableCell>
-                <TableCell>{prospect.prospectId}</TableCell>
-                <TableCell>{prospect.applicantName}</TableCell>
-                <TableCell>{prospect.mobileNumber}</TableCell>
-                <TableCell>{prospect.homeAddress}</TableCell>
-                <TableCell>{prospect.officeAddress}</TableCell>
-                <TableCell>{prospect.loanDetails}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+          {prospects.map((prospect, index) => (
+            <TableRow key={index}>
+              <TableCell>{prospect.prospect_id}</TableCell>
+              <TableCell>{prospect.applicant_name}</TableCell>
+              <TableCell>{prospect.age}</TableCell>
+              <TableCell>{prospect.mobile_number}</TableCell>
+              <TableCell>{prospect.residential_address}</TableCell>
+              <TableCell>{prospect.office_address}</TableCell>
+              <TableCell>{prospect.employment_type}</TableCell>
+              <TableCell>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  size="small"
+                  onClick={() => handleOpenDialog(prospect)}
+                >
+                  Edit
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
         </Table>
       </TableContainer>
 
@@ -223,39 +263,103 @@ const ProspectsDashboard = () => {
         variant="contained"
         color="primary"
         sx={{ marginTop: 3 }}
-        onClick={handleOpenDialog}
+        onClick={() => handleOpenDialog(null)}
       >
         Create New Prospect
       </Button>
 
       {/* Dialog for New Prospect Form */}
-      <Dialog
-  open={openDialog}
-  onClose={handleCloseDialog}
-  fullWidth
-  maxWidth="md"
-  sx={{
-    border: "2px solid #ccc", // Add a border
-    borderRadius: "8px", // Optional: Add rounded corners
-  }}
->
-  <DialogTitle>Prospect Details</DialogTitle>
+      <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="md">
+  <DialogTitle>{isEditMode ? "Edit Prospect" : "Create New Prospect"}</DialogTitle>
   <DialogContent>
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <TextField label="Applicant Name" fullWidth />
-      <RadioGroup row>
+      <TextField
+        label="Applicant Name"
+        fullWidth
+        value={selectedProspect?.applicant_name || ""}
+        onChange={(e) =>
+          setSelectedProspect((prev) => ({
+            ...prev,
+            applicant_name: e.target.value,
+          }))
+        }
+      />
+      <TextField
+        label="Prospect ID"
+        fullWidth
+        value={selectedProspect?.prospect_id || ""}
+        onChange={(e) =>
+          setSelectedProspect((prev) => ({
+            ...prev,
+            prospect_id: e.target.value,
+          }))
+        }
+        disabled={isEditMode} // Disable editing Prospect ID in edit mode
+      />
+      <RadioGroup
+        row
+        value={selectedProspect?.gender || ""}
+        onChange={(e) =>
+          setSelectedProspect((prev) => ({
+            ...prev,
+            gender: e.target.value,
+          }))
+        }
+      >
         <FormControlLabel value="male" control={<Radio />} label="Male" />
         <FormControlLabel value="female" control={<Radio />} label="Female" />
         <FormControlLabel value="other" control={<Radio />} label="Other" />
       </RadioGroup>
-      <TextField label="Age" fullWidth />
-      <TextField label="Residential Address" fullWidth />
-      <TextField label="Years of Stay" fullWidth />
-      <TextField label="Number of Family Members" fullWidth />
-
+      <TextField
+        label="Age"
+        fullWidth
+        value={selectedProspect?.age || ""}
+         inputMode="numeric"
+         onChange={(e) =>
+          setSelectedProspect((prev) => ({
+            ...prev,
+            age: e.target.value.replace(/\D/g, ""), // Remove non-numeric characters
+          }))
+        }
+      />
+      <TextField
+        label="Residential Address"
+        fullWidth
+        value={selectedProspect?.residential_address || ""}
+        onChange={(e) =>
+          setSelectedProspect((prev) => ({
+            ...prev,
+            residential_address: e.target.value,
+          }))
+        }
+      />
+      <TextField
+        label="Years of Stay"
+        fullWidth
+        value={selectedProspect?.years_of_stay || ""}
+         inputMode="numeric"
+        onChange={(e) =>
+          setSelectedProspect((prev) => ({
+            ...prev,
+            years_of_stay: e.target.value,
+          }))
+        }
+      />
+      <TextField
+        label="Number of Family Members"
+        fullWidth
+        value={selectedProspect?.number_of_family_members || ""}
+         inputMode="numeric"
+        onChange={(e) =>
+          setSelectedProspect((prev) => ({
+            ...prev,
+            number_of_family_members: e.target.value,
+          }))
+        }
+      />
       {/* Employment Type Toggle */}
       <ToggleButtonGroup
-        value={employmentType}
+        value={selectedProspect?.employment_type || employmentType}
         exclusive
         onChange={handleEmploymentTypeChange}
         sx={{ marginTop: 2 }}
@@ -267,23 +371,101 @@ const ProspectsDashboard = () => {
       {/* Employment/Business Fields */}
       {employmentType === "employee" && (
         <>
-          <TextField label="Office Address" fullWidth />
-          <TextField label="Years of Working in Current Office" fullWidth />
-          <TextField label="Role of Applicant" fullWidth />
-          <TextField label="EMP ID" fullWidth />
-          <TextField label="Previous Experience" fullWidth />
+          <TextField label="Office Address" value={selectedProspect?.office_address } 
+                  onChange={(e) =>
+                    setSelectedProspect((prev) => ({
+                      ...prev,
+                      applicant_name: e.target.value,
+                    }))
+                  }
+                  fullWidth />
+          <TextField label="Years of Working in Current Office"  value={selectedProspect?.years_in_current_office} inputMode="numeric" 
+                  onChange={(e) =>
+                    setSelectedProspect((prev) => ({
+                      ...prev,
+                      applicant_name: e.target.value,
+                    }))
+                  }
+                  fullWidth />
+          <TextField label="Role of Applicant" value={selectedProspect?.role} 
+                  onChange={(e) =>
+                    setSelectedProspect((prev) => ({
+                      ...prev,
+                      applicant_name: e.target.value,
+                    }))
+                  }
+                  fullWidth />
+          <TextField label="EMP ID" value={selectedProspect?.emp_id}  
+                  onChange={(e) =>
+                    setSelectedProspect((prev) => ({
+                      ...prev,
+                      applicant_name: e.target.value,
+                    }))
+                  }
+                  fullWidth />
+          <TextField label="Previous Experience"   value={selectedProspect?.previous_experience }  inputMode="numeric"
+                  onChange={(e) =>
+                    setSelectedProspect((prev) => ({
+                      ...prev,
+                      applicant_name: e.target.value,
+                    }))
+                  } fullWidth />
           <Box sx={{ display: "flex", gap: 2 }}>
-            <TextField label="Gross Salary" fullWidth />
-            <TextField label="Net Salary" fullWidth />
+            <TextField label="Gross Salary" value={selectedProspect?.gross_salary }
+                    onChange={(e) =>
+                      setSelectedProspect((prev) => ({
+                        ...prev,
+                        applicant_name: e.target.value,
+                      }))
+                    }
+                    inputMode="numeric"
+                     fullWidth />
+            <TextField label="Net Salary"  value={selectedProspect?.net_salary } 
+                    onChange={(e) =>
+                      setSelectedProspect((prev) => ({
+                        ...prev,
+                        applicant_name: e.target.value,
+                      }))
+                    }
+                    inputMode="numeric"
+                    fullWidth />
           </Box>
         </>
       )}
       {employmentType === "business" && (
         <>
-          <TextField label="Business Address" fullWidth />
-          <TextField label="Years in Business" fullWidth />
-          <TextField label="Type of Business" fullWidth />
-          <TextField label="Annual Turnover" fullWidth />
+          <TextField label="Business Address" value={selectedProspect?.office_address || ""} 
+                  onChange={(e) =>
+                    setSelectedProspect((prev) => ({
+                      ...prev,
+                      applicant_name: e.target.value,
+                    }))
+                  }
+                  fullWidth />
+          <TextField label="Years in Business"  value={selectedProspect?.years_in_current_office} inputMode="number"
+                  onChange={(e) =>
+                    setSelectedProspect((prev) => ({
+                      ...prev,
+                      applicant_name: e.target.value,
+                    }))
+                  }
+                   fullWidth />
+          <TextField label="Type of Business" value={selectedProspect?.role}  
+                  onChange={(e) =>
+                    setSelectedProspect((prev) => ({
+                      ...prev,
+                      applicant_name: e.target.value,
+                    }))
+                  }
+                  fullWidth />
+          <TextField label="Annual Turnover" value={selectedProspect?.gross_salary } 
+                  onChange={(e) =>
+                    setSelectedProspect((prev) => ({
+                      ...prev,
+                      applicant_name: e.target.value,
+                    }))
+                  }
+                  fullWidth />
         </>
       )}
     </Box>
@@ -292,8 +474,12 @@ const ProspectsDashboard = () => {
     <Button onClick={handleCloseDialog} color="secondary">
       Cancel
     </Button>
-    <Button variant="contained" color="primary">
-      Save
+    <Button
+      variant="contained"
+      color="primary"
+      onClick={() => handleSaveProspect(selectedProspect)}
+    >
+      {isEditMode ? "Update" : "Save"}
     </Button>
   </DialogActions>
 </Dialog>
