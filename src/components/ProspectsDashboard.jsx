@@ -32,7 +32,7 @@ import { Search, FilterList, Download } from "@mui/icons-material";
 
 const ProspectsDashboard = () => {
   const [openDialog, setOpenDialog] = useState(false);
-  const [employmentType, setEmploymentType] = useState("employee");
+  const [employmentType, setEmploymentType] = useState("Employee");
   const [prospects, setProspects] = useState([]); // State to store prospects
   const [totalProspects, setTotalProspects] = useState(0); // Total number of prospects
   const [page, setPage] = useState(1); // Current page for pagination
@@ -48,10 +48,18 @@ const ProspectsDashboard = () => {
       if (isEditMode) {
         // Call API to update the prospect
         await updateProspect(userData.token, orgId, prospectData); // Assume `updateProspect` is implemented
+        const count = await getProspectCount(userData.token, orgId); // Call the API
+        setTotalProspects(count || 0); // Update total prospects
+        const data = await getProspects(userData.token, orgId, 0, 10); // Call the API
+        setProspects(data || []); // Update prospects state
         alert("Prospect updated successfully!");
       } else {
         // Call API to create a new prospect
         await createProspect(userData.token, orgId, prospectData);
+        const count = await getProspectCount(userData.token, orgId); // Call the API
+        setTotalProspects(count || 0); // Update total prospects
+        const data = await getProspects(userData.token, orgId, 0, 10); // Call the API
+        setProspects(data || []); // Update prospects state
         alert("Prospect created successfully!");
       }
       setOpenDialog(false); // Close the dialog
@@ -106,15 +114,6 @@ const ProspectsDashboard = () => {
     setOpenDialog(false);
   };
 
-  const handleEmploymentTypeChange = (event, newType) => {
-    if (newType !== null) {
-      setEmploymentType(newType);
-      setSelectedProspect((prev) => ({
-        ...prev,
-        employment_type: newType,
-      }));
-    }
-  };
 
   return (
     <Box sx={{ padding: 4 }}>
@@ -285,6 +284,17 @@ const ProspectsDashboard = () => {
         }
       />
       <TextField
+        label="Mobile Number"
+        fullWidth
+        value={selectedProspect?.mobile_number || ""}
+        onChange={(e) =>
+          setSelectedProspect((prev) => ({
+            ...prev,
+            mobile_number: e.target.value,
+          }))
+        }
+      />
+      <TextField
         label="Prospect ID"
         fullWidth
         value={selectedProspect?.prospect_id || ""}
@@ -318,7 +328,7 @@ const ProspectsDashboard = () => {
          onChange={(e) =>
           setSelectedProspect((prev) => ({
             ...prev,
-            age: e.target.value.replace(/\D/g, ""), // Remove non-numeric characters
+            age: Number(e.target.value.replace(/\D/g, "")), // Remove non-numeric characters
           }))
         }
       />
@@ -341,7 +351,7 @@ const ProspectsDashboard = () => {
         onChange={(e) =>
           setSelectedProspect((prev) => ({
             ...prev,
-            years_of_stay: e.target.value.replace(/\D/g, ""),
+            years_of_stay: Number(e.target.value.replace(/\D/g, "")),
           }))
         }
       />
@@ -353,7 +363,7 @@ const ProspectsDashboard = () => {
         onChange={(e) =>
           setSelectedProspect((prev) => ({
             ...prev,
-            number_of_family_members: e.target.value.replace(/\D/g, ""),
+            number_of_family_members: Number(e.target.value.replace(/\D/g, "")),
           }))
         }
       />
@@ -361,15 +371,20 @@ const ProspectsDashboard = () => {
       <ToggleButtonGroup
         value={selectedProspect?.employment_type || employmentType}
         exclusive
-        onChange={handleEmploymentTypeChange}
+        onChange={(e) => 
+          setSelectedProspect((prev) => ({
+            ...prev,
+            employment_type: e.target.value,
+          }))
+        }
         sx={{ marginTop: 2 }}
       >
-        <ToggleButton value="employee">Employee</ToggleButton>
-        <ToggleButton value="business">Business</ToggleButton>
+        <ToggleButton value="Employee">Employee</ToggleButton>
+        <ToggleButton value="Business">Business</ToggleButton>
       </ToggleButtonGroup>
 
       {/* Employment/Business Fields */}
-      {employmentType === "employee" && (
+      {employmentType === "Employee" && (
         <>
           <TextField label="Office Address" value={selectedProspect?.office_address } 
                   onChange={(e) =>
@@ -383,7 +398,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      years_in_current_office: e.target.value.replace(/\D/g, ""),
+                      years_in_current_office: Number(e.target.value.replace(/\D/g, "")),
                     }))
                   }
                   fullWidth />
@@ -407,7 +422,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      previous_experience: e.target.value.replace(/\D/g, ""),
+                      previous_experience: Number(e.target.value.replace(/\D/g, "")),
                     }))
                   } fullWidth />
           <Box sx={{ display: "flex", gap: 2 }}>
@@ -415,7 +430,7 @@ const ProspectsDashboard = () => {
                     onChange={(e) =>
                       setSelectedProspect((prev) => ({
                         ...prev,
-                        gross_salary: e.target.value.replace(/\D/g, ""),
+                        gross_salary: Number(e.target.value.replace(/\D/g, "")),
                       }))
                     }
                     inputMode="numeric"
@@ -424,7 +439,7 @@ const ProspectsDashboard = () => {
                     onChange={(e) =>
                       setSelectedProspect((prev) => ({
                         ...prev,
-                        net_salary: e.target.value.replace(/\D/g, ""),
+                        net_salary: Number(e.target.value.replace(/\D/g, "")),
                       }))
                     }
                     inputMode="numeric"
@@ -432,7 +447,7 @@ const ProspectsDashboard = () => {
           </Box>
         </>
       )}
-      {employmentType === "business" && (
+      {employmentType === "Business" && (
         <>
           <TextField label="Business Address" value={selectedProspect?.office_address || ""} 
                   onChange={(e) =>
@@ -446,7 +461,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      years_in_current_office: e.target.value.replace(/\D/g, ""),
+                      years_in_current_office: Number(e.target.value.replace(/\D/g, "")),
                     }))
                   }
                    fullWidth />
@@ -462,7 +477,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      gross_salary: e.target.value.replace(/\D/g, ""),
+                      gross_salary: Number(e.target.value.replace(/\D/g, "")),
                     }))
                   }
                   fullWidth />
