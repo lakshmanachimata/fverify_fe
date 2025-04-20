@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useHandleLogout } from "../utils/utils"; // Import the custom hook
+import React, { useState, useEffect } from "react";
+import { getProspects, useHandleLogout,getProspectCount } from "../utils/utils"; // Import the API function and logout hook
 
 import {
   Box,
@@ -33,57 +33,45 @@ import { Search, FilterList, Download } from "@mui/icons-material";
 const ProspectsDashboard = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [employmentType, setEmploymentType] = useState("employee");
+  const [prospects, setProspects] = useState([]); // State to store prospects
+  const [totalProspects, setTotalProspects] = useState(0); // Total number of prospects
+  const [page, setPage] = useState(1); // Current page for pagination
+  const [limit] = useState(10); // Number of items per page
   const handleLogout = useHandleLogout(); // Use the custom hook
-  const userData = JSON.parse(localStorage.getItem("userData") ? localStorage.getItem("userData"): "{}"); // Parse user data from localStorage
+  const userData = JSON.parse(localStorage.getItem("userData") || "{}"); // Parse user data from localStorage
+  const orgId = localStorage.getItem("orgId");
 
 
-  const rows = [
-    {
-      appNumber: "APP001",
-      prospectId: "PROSO01",
-      applicantName: "John Anderson",
-      mobileNumber: "+1 (555) 123-4567",
-      homeAddress: "123 Maple Street, Brooklyn, NY",
-      officeAddress: "456 Business Ave, Manhattan, NY",
-      loanDetails: "$50,000 - Business Expansion",
-    },
-    {
-      appNumber: "APP002",
-      prospectId: "PROSO02",
-      applicantName: "Sarah Williams",
-      mobileNumber: "+1 (555) 234-5678",
-      homeAddress: "789 Oak Road, Queens, NY",
-      officeAddress: "321 Corporate Blvd, Manhattan, NY",
-      loanDetails: "$25,000 - Education",
-    },
-    {
-      appNumber: "APP003",
-      prospectId: "PROSO03",
-      applicantName: "Michael Brown",
-      mobileNumber: "+1 (555) 345-6789",
-      homeAddress: "456 Pine Lane, Staten Island, NY",
-      officeAddress: "789 Industry Park, Brooklyn, NY",
-      loanDetails: "$75,000 - Property Purchase",
-    },
-    {
-      appNumber: "APP004",
-      prospectId: "PROSO04",
-      applicantName: "Emily Davis",
-      mobileNumber: "+1 (555) 456-7890",
-      homeAddress: "234 Cedar Ave, Bronx, NY",
-      officeAddress: "567 Office Tower, Manhattan, NY",
-      loanDetails: "$30,000 - Debt Consolidation",
-    },
-    {
-      appNumber: "APP005",
-      prospectId: "PROSO05",
-      applicantName: "Robert Wilson",
-      mobileNumber: "+1 (555) 567-8901",
-      homeAddress: "890 Elm Street, Brooklyn, NY",
-      officeAddress: "123 Work Plaza, Queens, NY",
-      loanDetails: "$100,000 - Business Startup",
-    },
-  ];
+  useEffect(() => {
+    const fetchProspectCount = async () => {
+      try {
+        const count = await getProspectCount(userData.token, orgId); // Call the API
+        setTotalProspects(count || 0); // Update total prospects
+      } catch (error) {
+        console.error("Failed to fetch prospect count:", error);
+      }
+    };
+
+    fetchProspectCount();
+  }, [userData.token, orgId]);
+
+  useEffect(() => {
+    const fetchProspects = async () => {
+      try {
+        const skip = (page - 1) * limit; // Calculate skip value based on page
+        const data = await getProspects(userData.token, orgId, skip, limit); // Call the API
+        setProspects(data?.prospects || []); // Update prospects state
+      } catch (error) {
+        alert("Error fetching prospects: " + error.message); // Handle error
+      }
+    };
+
+    fetchProspects();
+  }, [page, userData.token, orgId, limit]);
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -148,31 +136,7 @@ const ProspectsDashboard = () => {
                 Total Prospects
               </Typography>
               <Typography variant="h4" fontWeight="bold">
-                156
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="textSecondary">
-                Active Applications
-              </Typography>
-              <Typography variant="h4" fontWeight="bold">
-                38
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="textSecondary">
-                Total Loan Amount
-              </Typography>
-              <Typography variant="h4" fontWeight="bold">
-                $2.4M
+                {totalProspects}
               </Typography>
             </CardContent>
           </Card>
@@ -218,15 +182,15 @@ const ProspectsDashboard = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row, index) => (
+            {prospects.map((prospect, index) => (
               <TableRow key={index}>
-                <TableCell>{row.appNumber}</TableCell>
-                <TableCell>{row.prospectId}</TableCell>
-                <TableCell>{row.applicantName}</TableCell>
-                <TableCell>{row.mobile_number}</TableCell>
-                <TableCell>{row.homeAddress}</TableCell>
-                <TableCell>{row.officeAddress}</TableCell>
-                <TableCell>{row.loanDetails}</TableCell>
+                <TableCell>{prospect.appNumber}</TableCell>
+                <TableCell>{prospect.prospectId}</TableCell>
+                <TableCell>{prospect.applicantName}</TableCell>
+                <TableCell>{prospect.mobileNumber}</TableCell>
+                <TableCell>{prospect.homeAddress}</TableCell>
+                <TableCell>{prospect.officeAddress}</TableCell>
+                <TableCell>{prospect.loanDetails}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -242,8 +206,16 @@ const ProspectsDashboard = () => {
           marginTop: 2,
         }}
       >
-        <Typography color="textSecondary">Showing 5 of 156 entries</Typography>
-        <Pagination count={10} variant="outlined" shape="rounded" />
+        <Typography color="textSecondary">
+          Showing {prospects.length} of {totalProspects} entries
+        </Typography>
+        <Pagination
+          count={Math.ceil(totalProspects / limit)}
+          page={page}
+          onChange={handlePageChange}
+          variant="outlined"
+          shape="rounded"
+        />
       </Box>
 
       {/* Create New Prospect Button */}

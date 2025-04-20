@@ -175,3 +175,40 @@ export const createUser = async (newUser, token, org_id) => {
     throw error; // Re-throw the error for handling in the calling function
   }
 };
+
+export const getProspects = async (token, orgId, skip = 0, limit = 10) => {
+  try {
+    const response = await axios.get(`${verifyDomain}/api/v1/prospects`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Authorization header with user token
+        org_id: orgId, // Organization ID header
+      },
+      params: {
+        skip, // Query parameter for pagination
+        limit, // Query parameter for pagination
+      },
+    });
+
+    // Return the response data
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching prospects:", error);
+    throw error; // Re-throw the error for handling in the calling function
+  }
+};
+export const getProspectCount = async (token, orgId) => {
+  try {
+    const response = await axios.get(`${verifyDomain}/api/v1/prospects/count`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Authorization header with user token
+        org_id: orgId, // Organization ID header
+      },
+    });
+
+    // Return the count from the response
+    return response.data.count;
+  } catch (error) {
+    console.error("Error fetching prospect count:", error);
+    throw error; // Re-throw the error for handling in the calling function
+  }
+};
