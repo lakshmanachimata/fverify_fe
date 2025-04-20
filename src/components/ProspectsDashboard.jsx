@@ -371,12 +371,15 @@ const ProspectsDashboard = () => {
       <ToggleButtonGroup
         value={selectedProspect?.employment_type || employmentType}
         exclusive
-        onChange={(e) => 
-          setSelectedProspect((prev) => ({
-            ...prev,
-            employment_type: e.target.value,
-          }))
-        }
+        onChange={(e, newValue) => {
+          if (newValue) {
+            setEmploymentType(newValue); // Update the employmentType state
+            setSelectedProspect((prev) => ({
+              ...prev,
+              employment_type: newValue, // Update the selected prospect's employment type
+            }));
+          }
+        }}
         sx={{ marginTop: 2 }}
       >
         <ToggleButton value="Employee">Employee</ToggleButton>
