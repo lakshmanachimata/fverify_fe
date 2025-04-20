@@ -341,7 +341,7 @@ const ProspectsDashboard = () => {
         onChange={(e) =>
           setSelectedProspect((prev) => ({
             ...prev,
-            years_of_stay: e.target.value,
+            years_of_stay: e.target.value.replace(/\D/g, ""),
           }))
         }
       />
@@ -353,7 +353,7 @@ const ProspectsDashboard = () => {
         onChange={(e) =>
           setSelectedProspect((prev) => ({
             ...prev,
-            number_of_family_members: e.target.value,
+            number_of_family_members: e.target.value.replace(/\D/g, ""),
           }))
         }
       />
@@ -383,7 +383,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      years_in_current_office: e.target.value,
+                      years_in_current_office: e.target.value.replace(/\D/g, ""),
                     }))
                   }
                   fullWidth />
@@ -407,7 +407,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      previous_experience: e.target.value,
+                      previous_experience: e.target.value.replace(/\D/g, ""),
                     }))
                   } fullWidth />
           <Box sx={{ display: "flex", gap: 2 }}>
@@ -415,7 +415,7 @@ const ProspectsDashboard = () => {
                     onChange={(e) =>
                       setSelectedProspect((prev) => ({
                         ...prev,
-                        gross_salary: e.target.value,
+                        gross_salary: e.target.value.replace(/\D/g, ""),
                       }))
                     }
                     inputMode="numeric"
@@ -424,7 +424,7 @@ const ProspectsDashboard = () => {
                     onChange={(e) =>
                       setSelectedProspect((prev) => ({
                         ...prev,
-                        net_salary: e.target.value,
+                        net_salary: e.target.value.replace(/\D/g, ""),
                       }))
                     }
                     inputMode="numeric"
@@ -446,7 +446,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      years_in_current_office: e.target.value,
+                      years_in_current_office: e.target.value.replace(/\D/g, ""),
                     }))
                   }
                    fullWidth />
@@ -462,7 +462,7 @@ const ProspectsDashboard = () => {
                   onChange={(e) =>
                     setSelectedProspect((prev) => ({
                       ...prev,
-                      gross_salary: e.target.value,
+                      gross_salary: e.target.value.replace(/\D/g, ""),
                     }))
                   }
                   fullWidth />
